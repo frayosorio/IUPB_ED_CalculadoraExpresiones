@@ -46,8 +46,9 @@ public class FrmCalculadora extends JFrame {
         tblVariables = new JTable();
         DefaultTableModel dtm = new DefaultTableModel(null, new String[] { "Variable", "Valor" });
         tblVariables.setModel(dtm);
-        tblVariables.setBounds(200, 50, 300, 250);
-        getContentPane().add(tblVariables);
+        JScrollPane sp=new JScrollPane(tblVariables);
+        sp.setBounds(200, 50, 300, 250);
+        getContentPane().add(sp);
 
         btnEjecutar.setText("Ejecutar");
         btnEjecutar.setBounds(10, 310, 150, 25);
@@ -71,7 +72,7 @@ public class FrmCalculadora extends JFrame {
 
     private void btnAnalizarClick(ActionEvent evt) {
         Postfijo.setExpresionInfijo(txtExpresion.getText());
-        Postfijo.getExpresionPostfijo();
+        System.out.println(Postfijo.getExpresionPostfijo());
     }
 
     private void btnEjecutarClick(ActionEvent evt) {
