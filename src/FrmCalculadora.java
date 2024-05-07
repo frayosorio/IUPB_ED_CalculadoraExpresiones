@@ -44,9 +44,9 @@ public class FrmCalculadora extends JFrame {
         getContentPane().add(btnAnalizar);
 
         tblVariables = new JTable();
-        DefaultTableModel dtm = new DefaultTableModel(null, new String[] { "Variable", "Valor" });
+        DefaultTableModel dtm = new DefaultTableModel(null, Postfijo.encabezados);
         tblVariables.setModel(dtm);
-        JScrollPane sp=new JScrollPane(tblVariables);
+        JScrollPane sp = new JScrollPane(tblVariables);
         sp.setBounds(200, 50, 300, 250);
         getContentPane().add(sp);
 
@@ -72,11 +72,15 @@ public class FrmCalculadora extends JFrame {
 
     private void btnAnalizarClick(ActionEvent evt) {
         Postfijo.setExpresionInfijo(txtExpresion.getText());
-        System.out.println(Postfijo.getExpresionPostfijo());
+        Postfijo.getExpresionPostfijo();
+        Postfijo.mostrarVariables(tblVariables);
     }
 
     private void btnEjecutarClick(ActionEvent evt) {
-
+        ArbolBinario ab = Postfijo.getArbolExpresion();
+        System.out.println(ab.recorrerInorden(ab.getRaiz()));
+        System.out.println(ab.recorrerPostorden(ab.getRaiz()));
+        System.out.println(ab.recorrerPreorden(ab.getRaiz()));
     }
 
 }

@@ -1,4 +1,9 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class Postfijo {
 
@@ -116,6 +121,99 @@ public class Postfijo {
             }
         }
         return expresionPostfijo;
+    }
+
+    public static List<String> getVariables() {
+        List<String> variables = new ArrayList<>();
+        boolean error = false;
+        int tipoOperando = 0; // 0: No es operando, 1: es variable, 2: es constante numérica
+
+        String texto = "";
+        int i = 0;
+        while (i < expresionPostfijo.length() && !error) {
+            String caracter = expresionPostfijo.substring(i, i + 1);
+
+            if (esLetra(caracter) && tipoOperando == 2) {
+                error = true;
+                mensajeError = "La constante numérica solo puede contener digitos";
+            } else if ((esLetra(caracter) && tipoOperando < 2)
+                    || (esDigito(caracter) && tipoOperando == 1)) {
+                tipoOperando = 1;
+                texto += caracter;
+            } else if (esDigito(caracter) && tipoOperando != 1) {
+                tipoOperando = 2;
+                texto += caracter;
+            } else if (caracter.equals(" ") && tipoOperando == 1) {
+                // no permitir variables repetidas
+                if (!variables.contains(texto)) {
+                    variables.add(texto);
+                }
+                tipoOperando = 0;
+                texto = "";
+            } else if (caracter.equals(" ") && tipoOperando == 2) {
+                tipoOperando = 0;
+                texto = "";
+            }
+            i++;
+        }
+        return variables;
+    }
+
+    public static String[] encabezados = new String[] { "Variable", "Valor" };
+
+    public static void mostrarVariables(JTable tbl) {
+        List<String> variables = getVariables();
+        String[][] datos = null;
+        if (variables.size() > 0) {
+            datos = new String[variables.size()][2];
+            for (int i = 0; i < variables.size(); i++) {
+                datos[i][0] = variables.get(i);
+            }
+        }
+        DefaultTableModel dtm = new DefaultTableModel(datos, encabezados);
+        tbl.setModel(dtm);
+    }
+
+    public static ArbolBinario getArbolExpresion() {
+
+        boolean error = false;
+        TipoOperando tipoOperando = TipoOperando.NINGUNO;
+        Stack pila = new Stack();
+
+        int i = 0;
+        String texto = "";
+        while (i < expresionPostfijo.length() && !error) {
+            String caracter = expresionPostfijo.substring(i, i + 1);
+            if (esLetra(caracter) && tipoOperando == TipoOperando.CONSTANTE) {
+                error = true;
+                mensajeError = "La constante numérica solo puede contener digitos";
+            } else if ((esLetra(caracter) && tipoOperando != TipoOperando.CONSTANTE) ||
+                    (esDigito(caracter) && tipoOperando == TipoOperando.VARIABLE)) {
+                tipoOperando = TipoOperando.VARIABLE;
+                texto += caracter;
+            } else if (esDigito(caracter) && tipoOperando != TipoOperando.VARIABLE) {
+                tipoOperando = TipoOperando.CONSTANTE;
+                texto += caracter;
+            } else if (caracter.equals(" ") && tipoOperando != TipoOperando.NINGUNO) {
+                Nodo nodoOperando = new Nodo(tipoOperando, texto);
+                pila.push(nodoOperando);
+                texto = "";
+                tipoOperando = TipoOperando.NINGUNO;
+            } else {
+                caracter = expresionPostfijo.substring(i, i + 1);
+                if (esOperador(caracter)) {
+                    Nodo nodoOperador = new Nodo(TipoOperando.NINGUNO, caracter);
+                    Nodo nodoDerecho = (Nodo) pila.pop();
+                    Nodo nodoIzquierdo = (Nodo) pila.pop();
+                    nodoOperador.izquierdo = nodoIzquierdo;
+                    nodoOperador.derecho = nodoDerecho;
+                    pila.push(nodoOperador);
+                }
+            }
+
+            i++;
+        }
+        return !error ? new ArbolBinario((Nodo) pila.pop()) : null;
     }
 
 }
